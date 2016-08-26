@@ -1,11 +1,9 @@
 #include <ice/log.h>
+#include <ice/color.h>
 #include <ice/exception.h>
 #include <ice/stack.h>
 #ifdef _WIN32
 #include <windows.h>
-#else
-#include <termios.h>
-#include <unistd.h>
 #endif
 #include <condition_variable>
 #include <fstream>
@@ -32,30 +30,20 @@ class console : public sink {
 public:
   explicit console(severity severity, options options) :
     severity_(severity), options_(options)
-  {
-#ifdef _WIN32
-    CONSOLE_SCREEN_BUFFER_INFO console_info = {};
-    clog_ = GetStdHandle(STD_OUTPUT_HANDLE);
-    GetConsoleScreenBufferInfo(clog_, &console_info);
-    clog_attr_ = console_info.wAttributes;
-    cerr_ = GetStdHandle(STD_ERROR_HANDLE);
-    GetConsoleScreenBufferInfo(cerr_, &console_info);
-    cerr_attr_ = console_info.wAttributes;
-#endif
-  }
+  {}
 
   virtual void write(const std::vector<message>& messages)
   {
-    bool clog = false;
+    bool cout = false;
     bool cerr = false;
     for (const auto& message : messages) {
       auto severity = std::get<1>(message);
       if (severity > severity_) {
         continue;
       }
-      std::ostream& os = severity < severity::warning ? std::cerr : std::clog;
-      if (&os == &std::clog) {
-        clog = true;
+      std::ostream& os = severity < severity::warning ? std::cerr : std::cout;
+      if (&os == &std::cout) {
+        cout = true;
       } else {
         cerr = true;
       }
@@ -78,8 +66,8 @@ public:
       }
       os << '\n';
     }
-    if (clog) {
-      std::clog << std::flush;
+    if (cout) {
+      std::cout << std::flush;
     }
     if (cerr) {
       std::cerr << std::flush;
@@ -88,45 +76,22 @@ public:
 
   std::ostream& color(std::ostream& os)
   {
-#ifdef _WIN32
-    if (&os == &std::clog) {
-      SetConsoleTextAttribute(clog_, clog_attr_);
-    } else {
-      SetConsoleTextAttribute(cerr_, cerr_attr_);
-    }
-    return os;
-#else
-    return os << "\x1b[0m";
-#endif
+    return os << ice::color::reset;
   }
 
   std::ostream& color(std::ostream& os, severity severity)
   {
-#ifdef _WIN32
-    auto handle = (&os == &std::clog ? clog_ : cerr_);
     switch (severity) {
-    case severity::emergency: SetConsoleTextAttribute(handle, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY); return os;
-    case severity::alert:     SetConsoleTextAttribute(handle, FOREGROUND_BLUE | FOREGROUND_INTENSITY); return os;
-    case severity::critical:  SetConsoleTextAttribute(handle, FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY); return os;
-    case severity::error:     SetConsoleTextAttribute(handle, FOREGROUND_RED | FOREGROUND_INTENSITY); return os;
-    case severity::warning:   SetConsoleTextAttribute(handle, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY); return os;
-    case severity::notice:    SetConsoleTextAttribute(handle, FOREGROUND_GREEN | FOREGROUND_INTENSITY); return os;
-    case severity::info:      SetConsoleTextAttribute(handle, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE); return os;
-    case severity::debug:     SetConsoleTextAttribute(handle, FOREGROUND_INTENSITY); return os;
+    case severity::emergency: return os << ice::color::cyan;
+    case severity::alert:     return os << ice::color::blue;
+    case severity::critical:  return os << ice::color::magenta;
+    case severity::error:     return os << ice::color::red;
+    case severity::warning:   return os << ice::color::yellow;
+    case severity::notice:    return os << ice::color::green;
+    case severity::info:      return os << ice::color::reset;
+    case severity::debug:     return os << ice::color::grey;
     }
-#else
-    switch (severity) {
-    case severity::emergency: return os << "\x1b[0;36m";
-    case severity::alert:     return os << "\x1b[0;34m";
-    case severity::critical:  return os << "\x1b[0;35m";
-    case severity::error:     return os << "\x1b[0;31m";
-    case severity::warning:   return os << "\x1b[0;33m";
-    case severity::notice:    return os << "\x1b[0;32m";
-    case severity::info:      return os << "\x1b[0m";
-    case severity::debug:     return os << "\x1b[1;30m";
-    }
-#endif
-    return color(os);
+    return os;
   }
 
   std::ostream& format(std::ostream& os, timestamp timestamp)
@@ -172,15 +137,6 @@ public:
 protected:
   severity severity_;
   options options_;
-#ifdef _WIN32
-  DWORD mode_ = 0;
-  HANDLE clog_ = nullptr;
-  WORD clog_attr_ = 0;
-  HANDLE cerr_ = nullptr;
-  WORD cerr_attr_ = 0;
-#else
-  termios tp_{};
-#endif
 };
 
 class file : public console {

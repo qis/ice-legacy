@@ -58,6 +58,20 @@ int main() {
 
 See <https://www.justsoftwaresolutions.co.uk/cplusplus/using-enum-classes-as-bitfields.html> for more information.
 
+## ice::color
+Stream operators that add color support for `std::cout`, `std::cerr` and `std::clog`.
+
+```cpp
+#include <ice/color.h>
+
+int main() {
+  std::cout << ice::color::red << ice::color::on_yellow << "red on yellow"
+    << ice::color::reset << " test" << std::endl;
+}
+```
+
+See <http://termcolor.readthedocs.io/> for more information.
+
 ## ice::date
 Date and time library for use with C++11 and C++14.
 
