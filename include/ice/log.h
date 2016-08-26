@@ -12,6 +12,23 @@
 namespace ice {
 namespace log {
 
+enum class options : std::uint8_t {
+  none         = 0x0,
+  append       = 0x1,
+  milliseconds = 0x2,
+};
+
+}  // namespace ice
+}  // namespace log
+
+template<>
+struct enable_bitmask_operators<ice::log::options> {
+  static constexpr bool value = true;
+};
+
+namespace ice {
+namespace log {
+
 using clock = std::chrono::system_clock;
 using timestamp = clock::time_point;
 
@@ -24,17 +41,6 @@ enum class severity : std::uint8_t {
   notice       = 0x5,
   info         = 0x6,
   debug        = 0x7,
-};
-
-enum class options : std::uint8_t {
-  none         = 0x0,
-  append       = 0x1,
-  milliseconds = 0x2,
-};
-
-template<>
-struct enable_bitmask_operators<options> {
-  static constexpr bool value = true;
 };
 
 bool init(severity severity = severity::debug, options options = options::milliseconds) noexcept;

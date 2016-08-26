@@ -39,20 +39,24 @@ Utility header that helps using enum classes as bitfields.
 #include <ice/bitmask.h>
 #include <assert.h>
 
+namespace test {
+
 enum class options {
   none = 0x0,
   one  = 0x1,
   two  = 0x2,
 };
 
+}  // namespace test
+
 template<>
-struct enable_bitmask_operators<options> {
+struct enable_bitmask_operators<test::options> {
   static constexpr bool value = true;
 };
 
 int main() {
-  auto opt = options::one | options::two;
-  assert(ice::bitmask(opt & options::one));
+  auto opt = test::options::one | test::options::two;
+  assert(ice::bitmask(opt & test::options::one));
 }
 ```
 

@@ -5,6 +5,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
+#include <algorithm>
 #include <condition_variable>
 #include <fstream>
 #include <iomanip>
@@ -165,9 +166,11 @@ public:
     os_ << std::flush;
   }
 
-  static int flags(options options)
+  static std::ios::openmode flags(options options)
   {
-    return static_cast<std::uint8_t>(options) & static_cast<std::uint8_t>(options::append) ? std::ios::app : 0;
+    return static_cast<std::uint8_t>(options) & static_cast<std::uint8_t>(options::append) ?
+      std::ios::app :
+      static_cast<std::ios::openmode>(0);
   }
 
 private:

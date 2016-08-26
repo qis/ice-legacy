@@ -9,6 +9,7 @@ namespace hash {
 // Copyright (c) 1986 Gary S. Brown.  You may use this program, or
 // code or tables extracted from it, as desired without restriction.
 
+template<>
 const std::uint32_t crc32::tab[256] = {
   0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,
   0xe963a535, 0x9e6495a3, 0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988,
@@ -86,6 +87,7 @@ const std::uint32_t crc32::tab[256] = {
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 // EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+template<>
 const std::uint64_t crc64::tab[256] = {
   0x0000000000000000, 0x7ad870c830358979, 0xf5b0e190606b12f2, 0x8f689158505e9b8b, 0xc038e5739841b68f,
   0xbae095bba8743ff6, 0x358804e3f82aa47d, 0x4f50742bc81f2d04, 0xab28ecb46814fe75, 0xd1f09c7c5821770c,
