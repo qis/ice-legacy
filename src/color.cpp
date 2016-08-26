@@ -49,9 +49,6 @@
 # include <windows.h>
 #endif
 
-#include <iostream>
-#include <cstdio>
-
 #if !defined(OS_WINDOWS)
 #define FOREGROUND_RED -1
 #define FOREGROUND_GREEN -1
