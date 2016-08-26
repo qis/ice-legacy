@@ -1,3 +1,5 @@
-#ifdef _WIN32
-#include "stack_win32.h"
+#if defined(_MSC_VER)
+#include "stack_msvc.h"
+#elif defined(__GNUC__)
+#include "stack_gcc.h"
 #endif

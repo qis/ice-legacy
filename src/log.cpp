@@ -182,12 +182,21 @@ private:
   logger()
   {
     if (!ice::stack::get_crash_handler()) {
-      ice::stack::set_crash_handler([](const char* trace) {
+      ice::stack::set_crash_handler([this](const char* trace) {
         try {
-          ice::log::critical() << "Unhandled exception.\n"
-            << trace ? trace : "";
-          std::this_thread::sleep_for(std::chrono::milliseconds(100));
-          std::cin.get();
+          auto timestamp = clock::now();
+          stop();
+          std::ostringstream oss;
+#ifdef _WIN32
+          oss << "Unhandled exception.\n" << trace;
+#else
+          oss << trace << '\n';
+#endif
+          if (sink_) {
+            sink_->write({{ timestamp, severity::critical, oss.str() }});
+          } else {
+            std::cerr << oss.str() << std::endl;
+          }
         }
         catch (...) {
         }
@@ -200,6 +209,11 @@ private:
 
 public:
   ~logger()
+  {
+    stop();
+  }
+
+  void stop()
   {
     stop_ = true;
     cv_.notify_one();

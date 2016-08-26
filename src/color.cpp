@@ -226,7 +226,7 @@ std::ostream& concealed(std::ostream& stream)
 
 std::ostream& grey(std::ostream& stream)
 {
-  return set_color(stream, "\033[1;30m", 0);
+  return set_color(stream, "\033[38;2;130;130;130m", 0);  // mintty cannot display "\033[30m"
 }
 
 std::ostream& red(std::ostream& stream)
