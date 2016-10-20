@@ -1,6 +1,15 @@
+# Make
+MAKEFLAGS += --no-print-directory
+
 # Compiler
-CC	:= gcc
-CXX	:= g++
+CC	:= clang
+CXX	:= clang++
+
+# Build Type
+BUILD	?= Debug
+
+# Project
+PROJECT	:= $(shell grep "^project" CMakeLists.txt | cut -c9- | cut -d" " -f1)
 
 # Targets
 all: configure
@@ -10,10 +19,16 @@ build:
 	@mkdir build
 
 configure: build
-	@cd build && CC="$(CC)" CXX="$(CXX)" cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=.. ..
+	cd build && CC="$(CC)" CXX="$(CXX)" cmake -DCMAKE_BUILD_TYPE=$(BUILD) -DCMAKE_INSTALL_PREFIX:PATH=.. ..
 
-install: all
+install: remove all
 	@cmake --build build --target install
 
 clean:
 	rm -rf build
+
+remove:
+	rm -rf lib
+
+format: configure
+	@cmake --build build --target format

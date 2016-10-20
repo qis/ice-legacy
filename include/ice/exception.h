@@ -11,7 +11,7 @@ public:
   virtual const char* info() const noexcept = 0;
 };
 
-template<typename T>
+template <typename T>
 class exception_stream : public exception, public T {
 public:
   using endl = std::ostream& (*)(std::ostream&);
@@ -24,7 +24,7 @@ public:
   exception_stream& operator=(exception_stream&& other) = default;
   exception_stream& operator=(const exception_stream& other) = default;
 
-  template<typename V>
+  template <typename V>
   exception_stream& operator<<(V&& v)
   {
     std::ostringstream oss;

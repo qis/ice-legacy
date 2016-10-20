@@ -1,6 +1,6 @@
 #include <ice/uuid.h>
-#include <ice/giant.h>
 #include <algorithm>
+#include <iomanip>
 #include <limits>
 #include <random>
 #include <stdexcept>
@@ -19,57 +19,24 @@ namespace ice {
 
 uuid::uuid(const std::string& str)
 {
-  auto count = std::sscanf(str.c_str(), UUID_FORMAT,
-    &tl, &tm, &thv, &csr, &csl, &n[0], &n[1], &n[2], &n[3], &n[4], &n[5]);
+  auto count = std::sscanf(str.c_str(), UUID_FORMAT, &data.v.tl, &data.v.tm, &data.v.thv, &data.v.csr, &data.v.csl,
+                           &data.v.n[0], &data.v.n[1], &data.v.n[2], &data.v.n[3], &data.v.n[4], &data.v.n[5]);
   if (count != UUID_FORMAT_COUNT) {
-    throw std::runtime_error("uuid format error");
+    throw std::runtime_error("uuid format error: " + str);
   }
-}
-
-uuid::uuid(const data_type& data)
-{
-  auto beg = reinterpret_cast<std::uint8_t*>(this);
-  std::copy(data.begin(), data.end(), beg);
-  tl  = giant::letoh(tl);
-  tm  = giant::letoh(tm);
-  thv = giant::letoh(thv);
-}
-
-uuid::uuid(const std::uint8_t* data, std::size_t size)
-{
-  if (size != 16) {
-    throw std::runtime_error("uuid blob size error");
-  }
-  auto beg = reinterpret_cast<std::uint8_t*>(this);
-  std::copy(data, data + size, beg);
-  tl  = giant::letoh(tl);
-  tm  = giant::letoh(tm);
-  thv = giant::letoh(thv);
 }
 
 std::string uuid::str() const
 {
   std::string str;
   str.resize(UUID_FORMAT_SIZE + 1);
-  auto size = std::snprintf(&str[0], UUID_FORMAT_SIZE + 1, UUID_FORMAT,
-    tl, tm, thv, csr, csl, n[0], n[1], n[2], n[3], n[4], n[5]);
+  auto size = std::snprintf(&str[0], UUID_FORMAT_SIZE + 1, UUID_FORMAT, data.v.tl, data.v.tm, data.v.thv, data.v.csr,
+                            data.v.csl, data.v.n[0], data.v.n[1], data.v.n[2], data.v.n[3], data.v.n[4], data.v.n[5]);
   if (size != UUID_FORMAT_SIZE) {
     throw std::runtime_error("uuid format size error");
   }
   str.resize(static_cast<std::size_t>(size));
   return str;
-}
-
-uuid::data_type uuid::data() const
-{
-  auto uuid = *this;
-  uuid.tl  = giant::htole(uuid.tl);
-  uuid.tm  = giant::htole(uuid.tm);
-  uuid.thv = giant::htole(uuid.thv);
-  data_type data;
-  auto beg = reinterpret_cast<const std::uint8_t*>(&uuid);
-  std::copy(beg, beg + data.size(), data.begin());
-  return data;
 }
 
 uuid uuid::generate()
@@ -80,12 +47,12 @@ uuid uuid::generate()
   ice::uuid uuid;
 
   // Set the UUID to a random value.
-  reinterpret_cast<std::uint64_t*>(&uuid)[0] = dist(rd);
-  reinterpret_cast<std::uint64_t*>(&uuid)[1] = dist(rd);
+  uuid.data.s[0] = dist(rd);
+  uuid.data.s[1] = dist(rd);
 
   // Set the UUID version according to RFC-4122 (Section 4.2).
-  uuid.thv = static_cast<decltype(uuid.thv)>((uuid.thv & 0x0FFF) | 0x4000);
-  uuid.csr = static_cast<decltype(uuid.csr)>((uuid.csr & 0x3F) | 0x80);
+  uuid.data.v.thv = static_cast<decltype(uuid.data.v.thv)>((uuid.data.v.thv & 0x0FFF) | 0x4000);
+  uuid.data.v.csr = static_cast<decltype(uuid.data.v.csr)>((uuid.data.v.csr & 0x3F) | 0x80);
 
   return uuid;
 }

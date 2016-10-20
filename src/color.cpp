@@ -33,20 +33,20 @@
 #include <ice/color.h>
 
 #if defined(_WIN32) || defined(_WIN64)
-# define OS_WINDOWS
+#define OS_WINDOWS
 #elif defined(__APPLE__)
-# define OS_MACOS
+#define OS_MACOS
 #elif defined(__unix__) || defined(__unix)
-# define OS_UNIX
+#define OS_UNIX
 #else
-# error unsupported platform
+#error unsupported platform
 #endif
 
 #if defined(OS_MACOS) || defined(OS_UNIX)
-# include <unistd.h>
+#include <unistd.h>
 #elif defined(OS_WINDOWS)
-# include <io.h>
-# include <windows.h>
+#include <io.h>
+#include <windows.h>
 #endif
 
 #if !defined(OS_WINDOWS)
@@ -105,9 +105,12 @@ color_type get_color_type(const std::ostream& stream)
 #elif defined(OS_WINDOWS)
   auto type = GetFileType(get_standard_handle(stream));
   switch (type) {
-  case 1: return color_type::none;     // Command Prompt (Pipe) || MinTTY (Pipe)
-  case 2: return color_type::windows;  // Command Prompt
-  case 3: return color_type::unix;     // MinTTY
+  case 1:
+    return color_type::none;  // Command Prompt (Pipe) || MinTTY (Pipe)
+  case 2:
+    return color_type::windows;  // Command Prompt
+  case 3:
+    return color_type::unix;  // MinTTY
   }
 #endif
   return color_type::none;
@@ -167,23 +170,20 @@ void change_attributes(std::ostream& stream, int foreground, int background)
   SetConsoleTextAttribute(handle, info.wAttributes);
 }
 
-#endif // OS_WINDOWS
+#endif  // OS_WINDOWS
 
 inline std::ostream& set_color(std::ostream& stream, const char* es, int foreground = -1, int background = -1)
 {
   auto type = get_color_type(stream);
   switch (type) {
-  case color_type::none:
-    break;
+  case color_type::none: break;
   case color_type::unix:
     if (es) {
       stream << es;
     }
     break;
 #if defined(OS_WINDOWS)
-  case color_type::windows:
-    change_attributes(stream, foreground, background);
-    break;
+  case color_type::windows: change_attributes(stream, foreground, background); break;
 #endif
   }
   return stream;
