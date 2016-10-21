@@ -1,7 +1,7 @@
 #pragma once
-#include <ice/traits.h>
 #include <ostream>
 #include <string>
+#include <string_view>
 #include <cstdint>
 
 namespace ice {
@@ -23,7 +23,7 @@ struct uuid {
   {}
 
   // Parses a string.
-  explicit uuid(const std::string& str);
+  explicit uuid(std::string_view str);
 
   // Formats the UUID.
   std::string str() const;
@@ -32,7 +32,7 @@ struct uuid {
   static uuid generate();
 
   // Checks if the given string is a UUID.
-  static bool check(const std::string& str);
+  static bool check(std::string_view str);
 };
 
 inline constexpr bool operator==(const ice::uuid& a, const ice::uuid& b)
@@ -69,21 +69,5 @@ inline std::ostream& operator<<(std::ostream& os, const ice::uuid& uuid)
 {
   return os << uuid.str();
 }
-
-template <typename Json>
-struct type_traits<Json, uuid> {
-  static constexpr bool enable = true;
-
-  static Json set(const uuid& value)
-  {
-    return value.str();
-  }
-
-  static uuid get(const Json& json)
-  {
-    auto str = json.template get<std::string>();
-    return uuid(str);
-  }
-};
 
 }  // namespace ice

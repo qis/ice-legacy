@@ -2,6 +2,7 @@ set(ICE_FOUND true)
 set(ICE_VERSION "0.2.0")
 
 if(NOT TARGET ice)
+  find_package(compat REQUIRED PATHS "${CMAKE_CURRENT_LIST_DIR}/../compat")
   find_package(OpenSSL REQUIRED)
   add_library(ice STATIC IMPORTED)
   set_target_properties(ice PROPERTIES
@@ -9,5 +10,5 @@ if(NOT TARGET ice)
     IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/lib/libice.a"
     IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
     IMPORTED_CONFIGURATIONS "RELEASE"
-    INTERFACE_LINK_LIBRARIES "${OPENSSL_LIBRARIES}")
+    INTERFACE_LINK_LIBRARIES "compat;${OPENSSL_LIBRARIES}")
 endif()

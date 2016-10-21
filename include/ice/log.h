@@ -1,14 +1,14 @@
 #pragma once
 #include <ice/bitmask.h>
-#include <ice/traits.h>
 #include <chrono>
 #include <exception>
+#include <filesystem>
 #include <memory>
 #include <ostream>
 #include <sstream>
 #include <string>
 #include <system_error>
-#include <experimental/type_traits>
+//#include <experimental/type_traits>
 #include <cstdint>
 
 namespace ice {
@@ -46,7 +46,7 @@ enum class severity : std::uint8_t {
 };
 
 bool init(severity severity = severity::debug, options options = options::milliseconds) noexcept;
-bool init(const std::string& filename, severity severity = severity::debug,
+bool init(const std::filesystem::path& filename, severity severity = severity::debug,
           options options = options::append | options::milliseconds) noexcept;
 
 class stream : public std::stringbuf, public std::ostream {
@@ -135,20 +135,4 @@ using info = stream_proxy<severity::info>;
 using debug = stream_proxy<severity::debug>;
 
 }  // namespace log
-
-template <typename Json>
-struct type_traits<Json, log::severity> {
-  static constexpr bool enable = true;
-
-  static Json set(const log::severity& value)
-  {
-    return static_cast<std::uint8_t>(value);
-  }
-
-  static log::severity get(const Json& json)
-  {
-    return static_cast<log::severity>(json.template get<std::uint8_t>());
-  }
-};
-
 }  // namespace ice

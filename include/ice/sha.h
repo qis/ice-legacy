@@ -5,13 +5,13 @@
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <cstdint>
 
 namespace ice {
 
 template <std::size_t S>
-class sha_traits {
-};
+class sha_traits {};
 
 template <>
 class sha_traits<1> {
@@ -50,22 +50,15 @@ public:
 
   sha();
 
-  template <std::size_t N>
-  sha(const char (&STR)[N]) : sha()
+  sha(std::string_view text) : sha()
   {
-    append(STR, N - 1);
+    append(text.data(), text.size());
     finish();
   }
 
   sha(const void* data, std::size_t size) : sha()
   {
     append(data, size);
-    finish();
-  }
-
-  sha(const std::string& text) : sha()
-  {
-    append(text.data(), text.size());
     finish();
   }
 

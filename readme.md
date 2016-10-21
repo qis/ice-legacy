@@ -1,5 +1,5 @@
 # ICE
-A small C++17 framework.
+A small C++17 framework. Requires clang >= 4.0.0 and [compat](https://github.com/qis/compat) in the parent directory.
 
 ## ice::base
 Encodes data as [base64](https://en.wikipedia.org/wiki/Base64).
@@ -154,7 +154,7 @@ int main() {
 
   // Get the hash value string.
   std::string string = hash.str();  // `hash.str(true)` for uppercase
-  
+
   // Reset the hash object so that it can be reused.
   //hash.reset();
 }
@@ -165,12 +165,32 @@ JSON for Modern C++.
 
 ```cpp
 #include <ice/json.h>
+#include <optional>
 #include <iostream>
+
+struct opt {
+  bool valid = false;
+};
+
+namespace ice {
+template <>
+struct json_type<json, opt> {
+  static constexpr bool enable = true;
+  static json set(const opt& value) {
+    return { { "valid", value.valid } };
+  }
+  static opt get(const json& value) {
+    return { value["valid"].get<bool>() };
+  }
+};
+}  // namespace ice
 
 int main() {
   ice::json value;
   value["one"] = 1;
-  std::cout << value["one"].get<int>() << '\n' << value << std::endl;
+  value["two"] = std::optional<int>();
+  value["opt"] = opt{ true };
+  std::cout << value["opt"].get<opt>().valid << '\n' << value << std::endl;
 }
 ```
 

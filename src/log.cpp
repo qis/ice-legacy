@@ -30,15 +30,17 @@ std::ostream& format_time_point(std::ostream& os, const clock::time_point& time_
 #else
   localtime_s(&tm, &time);
 #endif
-  os << std::setfill('0') << std::setw(4) << (tm.tm_year + 1900) << '-' << std::setw(2) << (tm.tm_mon + 1) << '-'
-     << std::setw(2) << tm.tm_mday << ' ' << std::setw(2) << tm.tm_hour << ':' << std::setw(2) << tm.tm_min << ':'
-     << std::setw(2) << tm.tm_sec;
+  auto flags = os.flags();
+  os << std::setfill('0') << std::dec << std::setw(4) << (tm.tm_year + 1900) << '-' << std::setw(2) << (tm.tm_mon + 1)
+     << '-' << std::setw(2) << tm.tm_mday << ' ' << std::setw(2) << tm.tm_hour << ':' << std::setw(2) << tm.tm_min
+     << ':' << std::setw(2) << tm.tm_sec;
   if (milliseconds) {
     auto tsp = time_point.time_since_epoch();
     auto s = std::chrono::duration_cast<std::chrono::seconds>(tsp);
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(tsp) - s;
     os << '.' << std::setw(3) << ms.count();
   }
+  os.flags(flags);
   return os;
 }
 
@@ -142,7 +144,7 @@ protected:
 
 class file : public console {
 public:
-  explicit file(const std::string& filename, severity severity, options options)
+  explicit file(const std::filesystem::path& filename, severity severity, options options)
     : console(severity, options), os_(filename, std::ios::binary | flags(options))
   {
     if (!os_) {
@@ -288,7 +290,7 @@ bool init(severity severity, options options) noexcept
   return true;
 }
 
-bool init(const std::string& filename, severity severity, options options) noexcept
+bool init(const std::filesystem::path& filename, severity severity, options options) noexcept
 {
   try {
     try {
@@ -297,17 +299,17 @@ bool init(const std::string& filename, severity severity, options options) noexc
     catch (const std::system_error& e) {
       std::cerr << "Could not initialize the logging facility.\n"
                 << ice::log::format(e.code()) << '\n'
-                << filename << std::endl;
+                << filename.u8string() << std::endl;
       return false;
     }
     catch (const std::exception& e) {
       std::cerr << "Could not initialize the logging facility.\n"
                 << ice::log::format(e.what()) << '\n'
-                << filename << std::endl;
+                << filename.u8string() << std::endl;
       return false;
     }
     catch (...) {
-      std::cerr << "Could not initialize the logging facility.\n" << filename << std::endl;
+      std::cerr << "Could not initialize the logging facility.\n" << filename.u8string() << std::endl;
       return false;
     }
   }

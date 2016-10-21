@@ -3,13 +3,13 @@
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <cstdint>
 
 namespace ice {
 
 template <std::size_t S>
-class crc_traits {
-};
+class crc_traits {};
 
 template <>
 class crc_traits<32> {
@@ -32,20 +32,14 @@ public:
 
   crc() = default;
 
-  template <std::size_t N>
-  crc(const char (&STR)[N])
+  crc(std::string_view text)
   {
-    append(STR, N - 1);
+    append(text.data(), text.size());
   }
 
   crc(const void* data, std::size_t size)
   {
     append(data, size);
-  }
-
-  crc(const std::string& text)
-  {
-    append(text.data(), text.size());
   }
 
   void append(const void* data, std::size_t size)

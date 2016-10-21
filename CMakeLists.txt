@@ -10,6 +10,7 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
 endif()
 
 # Dependencies
+find_package(compat REQUIRED ../compat)
 find_package(OpenSSL REQUIRED)
 
 # Sources
@@ -19,12 +20,12 @@ file(GLOB_RECURSE sources src/*.h src/*.cpp)
 # Library
 add_library(${PROJECT_NAME} STATIC ${headers} ${sources})
 target_include_directories(${PROJECT_NAME} PUBLIC include PRIVATE src ${OPENSSL_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC ${OPENSSL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PUBLIC compat ${OPENSSL_LIBRARIES})
 
 # Format
 add_custom_target(format
   COMMAND clang-format -i ${headers} ${sources}
-  COMMAND perl -i -pe "undef $$/\; s/{\\\\n\\\\s*}/{}/g" ${headers} ${sources}
+  COMMAND perl -pi -0777 -e "s/{\\\\n[ \\\\t]*}/{}/g\; s/\\\\r//g" ${headers} ${sources}
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Install
