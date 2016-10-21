@@ -1,5 +1,5 @@
-# ICE
-A small C++17 framework. Requires clang >= 4.0.0 and [compat](https://github.com/qis/compat) in the parent directory.
+# Ice
+C++17 framework. Requires clang >= 4.0.0 and [compat](https://github.com/qis/compat) in the parent directory.
 
 ## ice::base
 Encodes data as [base64](https://en.wikipedia.org/wiki/Base64).

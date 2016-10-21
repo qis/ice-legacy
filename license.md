@@ -1,4 +1,4 @@
-### ICE
+### Ice
 <https://github.com/qis/ice>
 
 ```
