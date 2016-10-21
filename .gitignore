@@ -4,5 +4,5 @@
 !.gitignore
 
 # Binaries
-build/
-lib/
+/build/
+/lib/
