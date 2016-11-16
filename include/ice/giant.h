@@ -50,8 +50,7 @@ enum { xinu_type = 0, unix_type = 1, nuxi_type = 2, type = nuxi_type, is_little 
 #endif
 
 template <typename T>
-T swap(T out)
-{
+T swap(T out) {
   if (!std::is_pod<T>::value) {
     return out;
   }
@@ -95,35 +94,29 @@ T swap(T out)
 }
 
 template <typename T>
-T letobe(const T& in)
-{
+T letobe(const T& in) {
   return swap(in);
 }
 template <typename T>
-T betole(const T& in)
-{
+T betole(const T& in) {
   return swap(in);
 }
 
 template <typename T>
-T letoh(const T& in)
-{
+T letoh(const T& in) {
   return type == xinu_type ? in : swap(in);
 }
 template <typename T>
-T htole(const T& in)
-{
+T htole(const T& in) {
   return type == xinu_type ? in : swap(in);
 }
 
 template <typename T>
-T betoh(const T& in)
-{
+T betoh(const T& in) {
   return type == unix_type ? in : swap(in);
 }
 template <typename T>
-T htobe(const T& in)
-{
+T htobe(const T& in) {
   return type == unix_type ? in : swap(in);
 }
 

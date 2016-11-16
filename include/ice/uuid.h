@@ -19,8 +19,7 @@ struct uuid {
     std::uint64_t s[2];
   } data;
 
-  constexpr uuid() : data({})
-  {}
+  constexpr uuid() : data({}) {}
 
   // Parses a string.
   explicit uuid(std::string_view str);
@@ -35,38 +34,31 @@ struct uuid {
   static bool check(std::string_view str);
 };
 
-inline constexpr bool operator==(const ice::uuid& a, const ice::uuid& b)
-{
+inline constexpr bool operator==(const ice::uuid& a, const ice::uuid& b) {
   return a.data.s[0] == b.data.s[0] && a.data.s[1] == b.data.s[1];
 }
 
-inline constexpr bool operator!=(const ice::uuid& a, const ice::uuid& b)
-{
+inline constexpr bool operator!=(const ice::uuid& a, const ice::uuid& b) {
   return !operator==(a, b);
 }
 
-inline constexpr bool operator<(const ice::uuid& a, const ice::uuid& b)
-{
+inline constexpr bool operator<(const ice::uuid& a, const ice::uuid& b) {
   return a.data.s[0] < b.data.s[0] || (a.data.s[0] == b.data.s[0] && a.data.s[1] < b.data.s[1]);
 }
 
-inline constexpr bool operator<=(const ice::uuid& a, const ice::uuid& b)
-{
+inline constexpr bool operator<=(const ice::uuid& a, const ice::uuid& b) {
   return a == b || a < b;
 }
 
-inline constexpr bool operator>(const ice::uuid& a, const ice::uuid& b)
-{
+inline constexpr bool operator>(const ice::uuid& a, const ice::uuid& b) {
   return a.data.s[0] > b.data.s[0] || (a.data.s[0] == b.data.s[0] && a.data.s[1] > b.data.s[1]);
 }
 
-inline constexpr bool operator>=(const ice::uuid& a, const ice::uuid& b)
-{
+inline constexpr bool operator>=(const ice::uuid& a, const ice::uuid& b) {
   return a == b || a > b;
 }
 
-inline std::ostream& operator<<(std::ostream& os, const ice::uuid& uuid)
-{
+inline std::ostream& operator<<(std::ostream& os, const ice::uuid& uuid) {
   return os << uuid.str();
 }
 

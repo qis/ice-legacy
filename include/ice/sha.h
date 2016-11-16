@@ -1,4 +1,5 @@
 #pragma once
+#include <gsl/span>
 #include <array>
 #include <memory>
 #include <iomanip>
@@ -46,19 +47,15 @@ public:
 template <std::size_t S>
 class sha {
 public:
-  using value_type = typename std::array<std::uint8_t, sha_traits<S>::size>;
-
   sha();
 
-  sha(std::string_view text) : sha()
-  {
+  sha(std::string_view text) : sha() {
     append(text.data(), text.size());
     finish();
   }
 
-  sha(const void* data, std::size_t size) : sha()
-  {
-    append(data, size);
+  sha(gsl::span<const gsl::byte> blob) : sha() {
+    append(blob.data(), blob.size());
     finish();
   }
 
@@ -67,18 +64,11 @@ public:
   void append(const void* data, std::size_t size);
   void finish();
 
-  value_type& value()
-  {
-    return value_;
+  gsl::span<const gsl::byte> value() const {
+    return gsl::span<const gsl::byte>(value_.data(), value_.size());
   }
 
-  const value_type& value() const
-  {
-    return value_;
-  }
-
-  std::string str(bool uppercase = false) const
-  {
+  std::string str(bool uppercase = false) const {
     std::ostringstream oss;
     oss << std::setfill('0') << std::hex;
     if (uppercase) {
@@ -95,19 +85,12 @@ public:
 private:
   struct context;
   std::unique_ptr<context> context_;
-  value_type value_ = {};
+  std::array<gsl::byte, sha_traits<S>::size> value_ = {};
 };
 
 template <std::size_t S>
-std::ostream& operator<<(std::ostream& os, const sha<S>& hash)
-{
-  auto flags = os.flags();
-  os << std::setfill('0') << std::hex;
-  for (auto byte : hash.value()) {
-    os << std::setw(2) << static_cast<unsigned>(byte);
-  }
-  os.flags(flags);
-  return os;
+std::ostream& operator<<(std::ostream& os, const sha<S>& hash) {
+  return os << hash.str();
 }
 
 using sha1 = sha<1>;

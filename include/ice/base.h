@@ -5,18 +5,20 @@ namespace ice {
 
 class base64 {
 public:
-  static std::uint8_t table(std::uint32_t index)
-  {
-    static const std::uint8_t data[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-                                        'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
-                                        'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-                                        'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
+  static std::uint8_t table(std::uint32_t index) {
+    // clang-format off
+    static const std::uint8_t data[] = {
+      'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+      'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+      'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+      'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'
+    };
+    // clang-format on
     return data[index];
   }
 
   template <typename OctetIterator, typename OutputIterator>
-  static OutputIterator encode(OctetIterator begin, OctetIterator end, OutputIterator out)
-  {
+  static OutputIterator encode(OctetIterator begin, OctetIterator end, OutputIterator out) {
     for (std::uint8_t octet[3]; begin != end;) {
       std::uint8_t n = 0;
       octet[n++] = *begin++;

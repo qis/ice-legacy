@@ -1,5 +1,20 @@
-# Ice
-C++17 framework. Requires clang >= 4.0.0 and [compat](https://github.com/qis/compat) in the parent directory.
+# ICE
+C++17 framework for Visual Studio 2015, Visual Studio 2015 Clang/C2 and Clang 4.0.
+
+## ice::application
+Retrieves information about the application executable.
+
+```cpp
+#include <ice/application.h>
+#include <iostream>
+
+int main() {
+  const auto path = ice::application::path();
+  std::cout << path.filename().u8string() << std::endl;
+  std::cout << path.parent_path().u8string() << std::endl;
+  std::cout << path.u8string() << std::endl;
+}
+```
 
 ## ice::base
 Encodes data as [base64](https://en.wikipedia.org/wiki/Base64).
@@ -61,6 +76,20 @@ int main() {
 ```
 
 See <http://termcolor.readthedocs.io/> for more information.
+
+## ice::crypt
+Openwall bcrypt wrapper.
+
+```cpp
+#include <ice/crypt.h>
+#include <iostream>
+
+int main() {
+  auto hash = ice::crypt::hash("test");
+  std::cout << ice::crypt::verify("test", hash) << std::endl;  // 1
+  std::cout << ice::crypt::verify("Test", hash) << std::endl;  // 0
+}
+```
 
 ## ice::exception
 Exception wrapper that acts as a stream.
@@ -202,6 +231,7 @@ using the `ice::stack` APIs.
 
 ```cpp
 #include <ice/log.h>
+#include <stdexcept>
 
 #define LOG_FILENAME "app.log"
 
@@ -216,6 +246,13 @@ int main() {
   }
 #endif
   ice::log::info() << "Hello World #" << 3;
+
+  try {
+    throw std::runtime_error("test");
+  }
+  catch (...) {
+    ice::log::error() << "error: " << std::current_exception();
+  }
   return 0;
 }
 ```

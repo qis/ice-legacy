@@ -1,5 +1,6 @@
 #pragma once
 #include <ice/bitmask.h>
+#include <ice/exception.h>
 #include <chrono>
 #include <exception>
 #include <filesystem>
@@ -8,7 +9,6 @@
 #include <sstream>
 #include <string>
 #include <system_error>
-//#include <experimental/type_traits>
 #include <cstdint>
 
 namespace ice {
@@ -49,15 +49,26 @@ bool init(severity severity = severity::debug, options options = options::millis
 bool init(const std::filesystem::path& filename, severity severity = severity::debug,
           options options = options::append | options::milliseconds) noexcept;
 
+void stop() noexcept;
+
 class stream : public std::stringbuf, public std::ostream {
 public:
-  explicit stream(severity severity) : std::stringbuf(), std::ostream(this), severity_(severity)
-  {}
+  explicit stream(severity severity);
 
   stream(stream&& other) = default;
   stream& operator=(stream&& other) = default;
 
   virtual ~stream();
+
+  stream& operator<<(const std::error_code& ec) {
+    static_cast<std::ostream&>(*this) << format(ec);
+    return *this;
+  }
+
+  stream& operator<<(const std::exception_ptr& ep) {
+    static_cast<std::ostream&>(*this) << format(ep);
+    return *this;
+  }
 
 private:
   timestamp timestamp_ = clock::now();
@@ -65,36 +76,25 @@ private:
 };
 
 template <typename T>
-inline stream& operator<<(stream& s, const T& value)
-{
-  static_cast<std::ostream&>(s) << value;
+inline stream& operator<<(stream& s, T&& value) {
+  static_cast<std::ostream&>(s) << std::forward<T>(value);
   return s;
 }
 
-stream& operator<<(stream& s, const std::error_code& ec) noexcept;
-stream& operator<<(stream& s, const std::exception_ptr& e) noexcept;
-
-stream& operator<<(stream& s, const std::chrono::milliseconds& duration);
-
-template <typename Rep, typename Period>
-stream& operator<<(stream& s, const std::chrono::duration<Rep, Period>& duration)
-{
-  return s << std::chrono::duration_cast<std::chrono::milliseconds>(duration);
+inline stream& operator<<(stream& s, const std::error_code& ec) {
+  static_cast<std::ostream&>(s) << format(ec);
+  return s;
 }
 
-stream& operator<<(stream& s, const std::chrono::time_point<clock>& tp);
-
-template <typename Duration>
-stream& operator<<(stream& s, const std::chrono::time_point<clock, Duration>& tp)
-{
-  return s << std::chrono::time_point_cast<std::chrono::time_point<clock>::duration>(tp);
+inline stream& operator<<(stream& s, const std::exception_ptr& ep) {
+  static_cast<std::ostream&>(s) << format(ep);
+  return s;
 }
 
 template <severity S>
 class stream_proxy : public stream {
 public:
-  stream_proxy() : stream(S)
-  {}
+  stream_proxy() : stream(S) {}
 
   stream_proxy(stream_proxy&& other) = default;
   stream_proxy& operator=(stream_proxy&& other) = default;
@@ -103,26 +103,21 @@ public:
 };
 
 template <severity S, typename T>
-inline stream_proxy<S>& operator<<(stream_proxy<S>& s, T&& value)
-{
-  static_cast<stream&>(s) << std::forward<T>(value);
+inline stream_proxy<S>& operator<<(stream_proxy<S>& s, T&& value) {
+  static_cast<std::ostream&>(s) << std::forward<T>(value);
   return s;
 }
 
-inline std::string format(std::string message)
-{
-  auto pos = message.find_last_not_of(" \t\n\v\f\r");
-  if (pos != message.npos) {
-    message.erase(pos + 1);
-  }
-  return message;
+template <severity S>
+inline stream_proxy<S>& operator<<(stream_proxy<S>& s, const std::error_code& ec) {
+  static_cast<std::ostream&>(s) << format(ec);
+  return s;
 }
 
-inline std::string format(const std::error_code& ec)
-{
-  std::ostringstream oss;
-  oss << ec.category().name() << " (" << ec.value() << "): " << ec.message();
-  return format(oss.str());
+template <severity S>
+inline stream_proxy<S>& operator<<(stream_proxy<S>& s, const std::exception_ptr& ep) {
+  static_cast<std::ostream&>(s) << format(ep);
+  return s;
 }
 
 using emergency = stream_proxy<severity::emergency>;

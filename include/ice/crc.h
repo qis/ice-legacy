@@ -1,4 +1,5 @@
 #pragma once
+#include <gsl/span>
 #include <iomanip>
 #include <ostream>
 #include <sstream>
@@ -32,31 +33,26 @@ public:
 
   crc() = default;
 
-  crc(std::string_view text)
-  {
+  crc(std::string_view text) {
     append(text.data(), text.size());
   }
 
-  crc(const void* data, std::size_t size)
-  {
-    append(data, size);
+  crc(gsl::span<const gsl::byte> blob) {
+    append(blob.data(), blob.size());
   }
 
-  void append(const void* data, std::size_t size)
-  {
+  void append(const void* data, std::size_t size) {
     for (std::size_t i = 0; i < size; i++) {
-      auto byte = static_cast<const std::uint8_t*>(data)[i];
-      value_ = tab[static_cast<std::uint8_t>(value_) ^ byte] ^ (value_ >> 8);
+      auto byte = static_cast<const gsl::byte*>(data)[i];
+      value_ = tab[static_cast<gsl::byte>(value_) ^ byte] ^ (value_ >> 8);
     }
   }
 
-  value_type value() const
-  {
+  value_type value() const {
     return value_;
   }
 
-  std::string str(bool uppercase = false) const
-  {
+  std::string str(bool uppercase = false) const {
     std::ostringstream oss;
     oss << std::setfill('0') << std::hex;
     if (uppercase) {
@@ -66,8 +62,7 @@ public:
     return oss.str();
   }
 
-  void reset()
-  {
+  void reset() {
     value_ = {};
   }
 
@@ -78,12 +73,8 @@ private:
 };
 
 template <std::size_t S>
-std::ostream& operator<<(std::ostream& os, const crc<S>& hash)
-{
-  auto flags = os.flags();
-  os << std::setfill('0') << std::hex << std::setw(crc_traits<S>::size) << hash.value();
-  os.flags(flags);
-  return os;
+std::ostream& operator<<(std::ostream& os, const crc<S>& hash) {
+  return os << hash.str();
 }
 
 using crc32 = crc<32>;

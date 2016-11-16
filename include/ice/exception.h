@@ -1,6 +1,8 @@
 #pragma once
+#include <exception>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 #include <system_error>
 
 namespace ice {
@@ -25,8 +27,7 @@ public:
   exception_stream& operator=(const exception_stream& other) = default;
 
   template <typename V>
-  exception_stream& operator<<(V&& v)
-  {
+  exception_stream& operator<<(V&& v) {
     std::ostringstream oss;
     oss.flags(flags_);
     oss << std::forward<V>(v);
@@ -35,19 +36,16 @@ public:
     return *this;
   }
 
-  exception_stream& operator<<(endl)
-  {
+  exception_stream& operator<<(endl) {
     info_.push_back('\n');
     return *this;
   }
 
-  const char* what() const noexcept override
-  {
+  const char* what() const noexcept override {
     return T::what();
   }
 
-  const char* info() const noexcept override
-  {
+  const char* info() const noexcept override {
     if (info_.empty()) {
       return nullptr;
     }
@@ -55,8 +53,7 @@ public:
   }
 
 private:
-  static std::ios_base::fmtflags default_flags()
-  {
+  static std::ios_base::fmtflags default_flags() {
     static const std::ios_base::fmtflags flags = std::ostringstream().flags();
     return flags;
   }
@@ -67,5 +64,8 @@ private:
 
 using runtime_error = exception_stream<std::runtime_error>;
 using system_error = exception_stream<std::system_error>;
+
+std::string format(const std::error_code& ec);
+std::string format(const std::exception_ptr& ep);
 
 }  // namespace ice

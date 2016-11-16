@@ -1,5 +1,3 @@
-#pragma once
-
 // (C) Copyright 2015 Just Software Solutions Ltd
 //
 // Distributed under the Boost Software License, Version 1.0.
@@ -32,6 +30,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#pragma once
 #include <type_traits>
 
 template <typename E>
@@ -40,52 +39,45 @@ struct enable_bitmask_operators {
 };
 
 template <typename E>
-constexpr std::enable_if_t<enable_bitmask_operators<E>::value, E> operator|(E lhs, E rhs)
-{
+constexpr std::enable_if_t<enable_bitmask_operators<E>::value, E> operator|(E lhs, E rhs) {
   using underlying = typename std::underlying_type<E>::type;
   return static_cast<E>(static_cast<underlying>(lhs) | static_cast<underlying>(rhs));
 }
 
 template <typename E>
-constexpr std::enable_if_t<enable_bitmask_operators<E>::value, E> operator&(E lhs, E rhs)
-{
+constexpr std::enable_if_t<enable_bitmask_operators<E>::value, E> operator&(E lhs, E rhs) {
   using underlying = typename std::underlying_type<E>::type;
   return static_cast<E>(static_cast<underlying>(lhs) & static_cast<underlying>(rhs));
 }
 
 template <typename E>
-constexpr std::enable_if_t<enable_bitmask_operators<E>::value, E> operator^(E lhs, E rhs)
-{
+constexpr std::enable_if_t<enable_bitmask_operators<E>::value, E> operator^(E lhs, E rhs) {
   using underlying = typename std::underlying_type<E>::type;
   return static_cast<E>(static_cast<underlying>(lhs) ^ static_cast<underlying>(rhs));
 }
 
 template <typename E>
-constexpr std::enable_if_t<enable_bitmask_operators<E>::value, E> operator~(E lhs)
-{
+constexpr std::enable_if_t<enable_bitmask_operators<E>::value, E> operator~(E lhs) {
   using underlying = typename std::underlying_type<E>::type;
   return static_cast<E>(~static_cast<underlying>(lhs));
 }
 
 template <typename E>
-std::enable_if_t<enable_bitmask_operators<E>::value, E&> operator|=(E& lhs, E rhs)
-{
+std::enable_if_t<enable_bitmask_operators<E>::value, E&> operator|=(E& lhs, E rhs) {
   using underlying = typename std::underlying_type<E>::type;
   lhs = static_cast<E>(static_cast<underlying>(lhs) | static_cast<underlying>(rhs));
   return lhs;
 }
 
 template <typename E>
-std::enable_if_t<enable_bitmask_operators<E>::value, E&> operator&=(E& lhs, E rhs)
-{
+std::enable_if_t<enable_bitmask_operators<E>::value, E&> operator&=(E& lhs, E rhs) {
   using underlying = typename std::underlying_type<E>::type;
   lhs = static_cast<E>(static_cast<underlying>(lhs) & static_cast<underlying>(rhs));
   return lhs;
 }
 
 template <typename E>
-std::enable_if_t<enable_bitmask_operators<E>::value, E&> operator^=(E& lhs, E rhs)
-{
+std::enable_if_t<enable_bitmask_operators<E>::value, E&> operator^=(E& lhs, E rhs) {
   using underlying = typename std::underlying_type<E>::type;
   lhs = static_cast<E>(static_cast<underlying>(lhs) ^ static_cast<underlying>(rhs));
   return lhs;
@@ -94,8 +86,7 @@ std::enable_if_t<enable_bitmask_operators<E>::value, E&> operator^=(E& lhs, E rh
 namespace ice {
 
 template <typename E>
-constexpr std::enable_if_t<enable_bitmask_operators<E>::value, bool> bitmask(E lhs)
-{
+constexpr std::enable_if_t<enable_bitmask_operators<E>::value, bool> bitmask(E lhs) {
   using underlying = typename std::underlying_type<E>::type;
   return static_cast<underlying>(lhs) != 0;
 }

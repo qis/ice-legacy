@@ -72,8 +72,7 @@ enum class color_type {
 
 #if defined(OS_MACOS) || defined(OS_UNIX)
 
-FILE* get_standard_stream(const std::ostream& stream)
-{
+FILE* get_standard_stream(const std::ostream& stream) {
   if (&stream == &std::cout) {
     return stdout;
   } else if ((&stream == &std::cerr) || (&stream == &std::clog)) {
@@ -84,8 +83,7 @@ FILE* get_standard_stream(const std::ostream& stream)
 
 #elif defined(OS_WINDOWS)
 
-HANDLE get_standard_handle(const std::ostream& stream)
-{
+HANDLE get_standard_handle(const std::ostream& stream) {
   if (&stream == &std::cout) {
     return GetStdHandle(STD_OUTPUT_HANDLE);
   } else if ((&stream == &std::cerr) || (&stream == &std::clog)) {
@@ -96,8 +94,7 @@ HANDLE get_standard_handle(const std::ostream& stream)
 
 #endif
 
-color_type get_color_type(const std::ostream& stream)
-{
+color_type get_color_type(const std::ostream& stream) {
 #if defined(OS_MACOS) || defined(OS_UNIX)
   if (isatty(fileno(get_standard_stream(stream)))) {
     return color_type::unix;
@@ -119,8 +116,7 @@ color_type get_color_type(const std::ostream& stream)
 #if defined(OS_WINDOWS)
 
 // Change Windows Terminal colors attribute. If a parameter is `-1` then the attribute won't changed.
-void change_attributes(std::ostream& stream, int foreground, int background)
-{
+void change_attributes(std::ostream& stream, int foreground, int background) {
   static WORD default_attributes = 0;
   static bool dark = false;
 
@@ -129,7 +125,7 @@ void change_attributes(std::ostream& stream, int foreground, int background)
 
   // Save default terminal attributes.
   if (!default_attributes) {
-    CONSOLE_SCREEN_BUFFER_INFO info;
+    CONSOLE_SCREEN_BUFFER_INFO info = {};
     if (!GetConsoleScreenBufferInfo(handle, &info)) {
       return;
     }
@@ -144,7 +140,7 @@ void change_attributes(std::ostream& stream, int foreground, int background)
   }
 
   // Get current settings.
-  CONSOLE_SCREEN_BUFFER_INFO info;
+  CONSOLE_SCREEN_BUFFER_INFO info = {};
   if (!GetConsoleScreenBufferInfo(handle, &info)) {
     return;
   }
@@ -172,8 +168,7 @@ void change_attributes(std::ostream& stream, int foreground, int background)
 
 #endif  // OS_WINDOWS
 
-inline std::ostream& set_color(std::ostream& stream, const char* es, int foreground = -1, int background = -1)
-{
+inline std::ostream& set_color(std::ostream& stream, const char* es, int foreground = -1, int background = -1) {
   auto type = get_color_type(stream);
   switch (type) {
   case color_type::none: break;
@@ -191,118 +186,95 @@ inline std::ostream& set_color(std::ostream& stream, const char* es, int foregro
 
 }  // namespace
 
-std::ostream& bold(std::ostream& stream)
-{
+std::ostream& bold(std::ostream& stream) {
   return set_color(stream, "\033[1m");
 }
 
-std::ostream& dark(std::ostream& stream)
-{
+std::ostream& dark(std::ostream& stream) {
   return set_color(stream, "\033[2m", -2);
 }
 
-std::ostream& underline(std::ostream& stream)
-{
+std::ostream& underline(std::ostream& stream) {
   return set_color(stream, "\033[4m");
 }
 
-std::ostream& blink(std::ostream& stream)
-{
+std::ostream& blink(std::ostream& stream) {
   return set_color(stream, "\033[5m");
 }
 
-std::ostream& reverse(std::ostream& stream)
-{
+std::ostream& reverse(std::ostream& stream) {
   return set_color(stream, "\033[7m");
 }
 
-std::ostream& concealed(std::ostream& stream)
-{
+std::ostream& concealed(std::ostream& stream) {
   return set_color(stream, "\033[8m");
 }
 
-std::ostream& grey(std::ostream& stream)
-{
+std::ostream& grey(std::ostream& stream) {
   return set_color(stream, "\033[38;2;130;130;130m", 0);  // mintty cannot display "\033[30m"
 }
 
-std::ostream& red(std::ostream& stream)
-{
+std::ostream& red(std::ostream& stream) {
   return set_color(stream, "\033[31m", FOREGROUND_RED);
 }
 
-std::ostream& green(std::ostream& stream)
-{
+std::ostream& green(std::ostream& stream) {
   return set_color(stream, "\033[32m", FOREGROUND_GREEN);
 }
 
-std::ostream& yellow(std::ostream& stream)
-{
+std::ostream& yellow(std::ostream& stream) {
   return set_color(stream, "\033[33m", FOREGROUND_GREEN | FOREGROUND_RED);
 }
 
-std::ostream& blue(std::ostream& stream)
-{
+std::ostream& blue(std::ostream& stream) {
   return set_color(stream, "\033[34m", FOREGROUND_BLUE);
 }
 
-std::ostream& magenta(std::ostream& stream)
-{
+std::ostream& magenta(std::ostream& stream) {
   return set_color(stream, "\033[35m", FOREGROUND_BLUE | FOREGROUND_RED);
 }
 
-std::ostream& cyan(std::ostream& stream)
-{
+std::ostream& cyan(std::ostream& stream) {
   return set_color(stream, "\033[36m", FOREGROUND_BLUE | FOREGROUND_GREEN);
 }
 
-std::ostream& white(std::ostream& stream)
-{
+std::ostream& white(std::ostream& stream) {
   return set_color(stream, "\033[37m", FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
 }
 
-std::ostream& on_grey(std::ostream& stream)
-{
+std::ostream& on_grey(std::ostream& stream) {
   return set_color(stream, "\033[40m", -1, 0);
 }
 
-std::ostream& on_red(std::ostream& stream)
-{
+std::ostream& on_red(std::ostream& stream) {
   return set_color(stream, "\033[41m", -1, BACKGROUND_RED);
 }
 
-std::ostream& on_green(std::ostream& stream)
-{
+std::ostream& on_green(std::ostream& stream) {
   return set_color(stream, "\033[42m", -1, BACKGROUND_GREEN);
 }
 
-std::ostream& on_yellow(std::ostream& stream)
-{
+std::ostream& on_yellow(std::ostream& stream) {
   return set_color(stream, "\033[43m", -1, BACKGROUND_GREEN | BACKGROUND_RED);
 }
 
-std::ostream& on_blue(std::ostream& stream)
-{
+std::ostream& on_blue(std::ostream& stream) {
   return set_color(stream, "\033[44m", -1, BACKGROUND_BLUE);
 }
 
-std::ostream& on_magenta(std::ostream& stream)
-{
+std::ostream& on_magenta(std::ostream& stream) {
   return set_color(stream, "\033[45m", -1, BACKGROUND_BLUE | BACKGROUND_RED);
 }
 
-std::ostream& on_cyan(std::ostream& stream)
-{
+std::ostream& on_cyan(std::ostream& stream) {
   return set_color(stream, "\033[46m", -1, BACKGROUND_GREEN | BACKGROUND_BLUE);
 }
 
-std::ostream& on_white(std::ostream& stream)
-{
+std::ostream& on_white(std::ostream& stream) {
   return set_color(stream, "\033[47m", -1, BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED);
 }
 
-std::ostream& reset(std::ostream& stream)
-{
+std::ostream& reset(std::ostream& stream) {
   return set_color(stream, "\033[00m", -1, -1);
 }
 

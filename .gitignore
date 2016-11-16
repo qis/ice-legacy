@@ -1,8 +1,1 @@
-# Hidden Files
-.*
-!.clang-format
-!.gitignore
-
-# Binaries
-/build/
 /lib/

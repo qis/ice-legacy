@@ -9,8 +9,7 @@ namespace ice {
 namespace detail {
 
 template <typename T>
-inline std::enable_if_t<std::is_integral<T>::value, std::string> hex(T value, bool uppercase = true)
-{
+inline std::enable_if_t<std::is_integral<T>::value, std::string> hex(T value, bool uppercase = true) {
   std::ostringstream oss;
   oss << std::hex << std::setfill('0');
   if (uppercase) {
@@ -21,8 +20,7 @@ inline std::enable_if_t<std::is_integral<T>::value, std::string> hex(T value, bo
 }
 
 template <typename T>
-inline std::enable_if_t<!std::is_integral<T>::value, std::string> hex(const T& range, bool uppercase = true)
-{
+inline std::enable_if_t<!std::is_integral<T>::value, std::string> hex(const T& range, bool uppercase = true) {
   std::ostringstream oss;
   oss << std::hex << std::setfill('0');
   if (uppercase) {
@@ -37,14 +35,12 @@ inline std::enable_if_t<!std::is_integral<T>::value, std::string> hex(const T& r
 }  // namespace detail
 
 template <typename T>
-inline std::string hex(T&& range, bool uppercase = true)
-{
+inline std::string hex(T&& range, bool uppercase = true) {
   return detail::hex(std::forward<T>(range), uppercase);
 }
 
 template <typename T>
-inline std::string hex(std::initializer_list<T> list, bool uppercase = true)
-{
+inline std::string hex(std::initializer_list<T> list, bool uppercase = true) {
   return detail::hex(list, uppercase);
 }
 

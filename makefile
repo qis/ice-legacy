@@ -6,7 +6,7 @@ CC	:= clang
 CXX	:= clang++
 
 # Build Type
-BUILD	?= Debug
+BUILD	?= Release
 
 # Project
 PROJECT	:= $(shell grep "^project" CMakeLists.txt | cut -c9- | cut -d" " -f1)
@@ -21,14 +21,11 @@ build:
 configure: build
 	cd build && CC="$(CC)" CXX="$(CXX)" cmake -DCMAKE_BUILD_TYPE=$(BUILD) -DCMAKE_INSTALL_PREFIX:PATH=.. ..
 
-install: remove all
+install: all
 	@cmake --build build --target install
 
 clean:
 	rm -rf build
-
-remove:
-	rm -rf lib
 
 format: configure
 	@cmake --build build --target format
