@@ -1,5 +1,6 @@
 #include <ice/log.h>
 #include <ice/color.h>
+#include <ice/exception.h>
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -336,6 +337,16 @@ stream::~stream() {
   }
   s.erase(std::remove(s.begin(), s.end(), '\r'), s.end());
   logger::get().write(timestamp_, severity_, std::move(s));
+}
+
+stream& stream::operator<<(const std::error_code& ec) {
+  static_cast<std::ostream&>(*this) << format(ec);
+  return *this;
+}
+
+stream& stream::operator<<(const std::exception_ptr& ep) {
+  static_cast<std::ostream&>(*this) << format(ep);
+  return *this;
 }
 
 }  // namespace log

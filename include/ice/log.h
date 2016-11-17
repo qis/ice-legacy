@@ -1,6 +1,5 @@
 #pragma once
 #include <ice/bitmask.h>
-#include <ice/exception.h>
 #include <chrono>
 #include <exception>
 #include <filesystem>
@@ -60,15 +59,8 @@ public:
 
   virtual ~stream();
 
-  stream& operator<<(const std::error_code& ec) {
-    static_cast<std::ostream&>(*this) << format(ec);
-    return *this;
-  }
-
-  stream& operator<<(const std::exception_ptr& ep) {
-    static_cast<std::ostream&>(*this) << format(ep);
-    return *this;
-  }
+  stream& operator<<(const std::error_code& ec);
+  stream& operator<<(const std::exception_ptr& ep);
 
 private:
   timestamp timestamp_ = clock::now();
@@ -78,16 +70,6 @@ private:
 template <typename T>
 inline stream& operator<<(stream& s, T&& value) {
   static_cast<std::ostream&>(s) << std::forward<T>(value);
-  return s;
-}
-
-inline stream& operator<<(stream& s, const std::error_code& ec) {
-  static_cast<std::ostream&>(s) << format(ec);
-  return s;
-}
-
-inline stream& operator<<(stream& s, const std::exception_ptr& ep) {
-  static_cast<std::ostream&>(s) << format(ep);
   return s;
 }
 
@@ -110,13 +92,13 @@ inline stream_proxy<S>& operator<<(stream_proxy<S>& s, T&& value) {
 
 template <severity S>
 inline stream_proxy<S>& operator<<(stream_proxy<S>& s, const std::error_code& ec) {
-  static_cast<std::ostream&>(s) << format(ec);
+  static_cast<stream&>(s) << ec;
   return s;
 }
 
 template <severity S>
 inline stream_proxy<S>& operator<<(stream_proxy<S>& s, const std::exception_ptr& ep) {
-  static_cast<std::ostream&>(s) << format(ep);
+  static_cast<stream&>(s) << ep;
   return s;
 }
 
