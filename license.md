@@ -178,6 +178,8 @@ misrepresented as being the original software.
 ### JSON for Modern C++
 <https://github.com/nlohmann/json>
 
+Including modifications from [theodelrieu](https://github.com/theodelrieu/json/tree/feature/user_defined_types_bis).
+
 ```
 Copyright © 2013-2016 Niels Lohmann
 
