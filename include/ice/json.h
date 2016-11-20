@@ -47,6 +47,7 @@ SOFTWARE.
 #include <map>
 #include <memory>
 #include <numeric>
+#include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -10851,7 +10852,26 @@ NLOHMANN_JSON_HAS_HELPER(iterator)
   @since version 1.0.0
   */
   using json = basic_json<>;
-}
+
+  template <typename T>
+  void to_json(json& dst, const std::optional<T>& src) {
+    if (src) {
+      dst = src.value();
+    } else {
+      dst = nullptr;
+    }
+  }
+
+  template <typename T>
+  void from_json(const json& src, std::optional<T>& dst) {
+    if (src.is_null()) {
+      dst = std::nullopt;
+    } else {
+      dst = src.get<T>();
+    }
+  }
+
+}  // namespace json
 
 
 ///////////////////////
